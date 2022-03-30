@@ -11,12 +11,23 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
+#include <QString>
 
 projet_je_sais_pas::projet_je_sais_pas(QWidget *parent)
     : QWidget(parent)
 {
+    count = 0;
     setFixedSize(500, 500);
 
+    labelT = new QLabel(this);
+    QTimer* t = new QTimer(this);
+    t->setInterval(1000);
+    t->start();
+    connect(t, &QTimer::timeout, this, [=]()->void {integrityTimersEvent(t->timerId()); });
+    timer = t;
+    label = new QLabel(this);
+    //label->setText(QString::number(timer->nsecsElapsed()));
+    label->show();
     m_gridLayout = new QGridLayout(this);
     createGridGroupBox();
     setLayout(m_gridLayout);
@@ -27,11 +38,13 @@ void projet_je_sais_pas::paintEvent(QPaintEvent*) {
     //painter.setPen(Qt::blue);
     //painter.setFont(QFont("Arial", 30));
     //painter.drawText(rect(), Qt::AlignCenter, "Qt");
+    //label->setText(QString::number(timer->nsecsElapsed()/60/60));
 }
 
 void projet_je_sais_pas::createGridGroupBox()
 {
-    int nb_mine = 14;
+    int nb_mine = 20;
+    int cooldown = 0;
     srand(time(NULL));
     for (int i = 0; i < 12; i++) {
         for (int j = 0; j < 14; j++) {
@@ -43,7 +56,9 @@ void projet_je_sais_pas::createGridGroupBox()
             label->setPixmap(pixmap);
             label->setScaledContents(true);
             m_gridLayout->addWidget(label, j, i, 1, 1, Qt::AlignHCenter);
-            if (random == 5 && nb_mine != 0) {
+            if (random == 5 && nb_mine != 0 && cooldown == 0) {
+                if (cooldown == 0)
+                    cooldown = 5;
                 tab[i][j] = 5;
                 label->setPixmap(m_pixmap);
                 nb_mine--;
@@ -51,6 +66,8 @@ void projet_je_sais_pas::createGridGroupBox()
             else {
                 tab[i][j] = 0;
             }
+            if(cooldown != 0)
+                cooldown--;
         }
     }
 }
@@ -67,7 +84,7 @@ void projet_je_sais_pas::gameOver()
 void projet_je_sais_pas::begin(int i, int j)
 {      
     chooseAsset(i, j);
-    if (tab[i][j + 1] == 5 || tab[i][j - 1] == 5 || tab[i + 1][j] == 5 || tab[i - 1][j] == 5)
+    if (tab[i][j + 1] == 5 || tab[i][j - 1] == 5 || tab[i + 1][j] == 5 || tab[i - 1][j] == 5 || tab[i - 1][j+1] == 5 || tab[i + 1][j-1] == 5 || tab[i - 1][j-1] == 5 || tab[i + 1][j+1] == 5)
         return;
     if (tab[i][j + 1] != 5 && j < 13) {
         chooseAsset(i, j+1);
@@ -224,4 +241,13 @@ void projet_je_sais_pas::chooseAsset(int x, int y)
     tab[x][y] = 6;
     break; }
     }
+} 
+
+void projet_je_sais_pas::integrityTimersEvent(int timerID)
+{
+    qDebug() << "integrityTimersEvent => Timer ID:" << timerID;
+    qDebug() << count++;
+    labelT->setText(QString("%1 sec").arg(count));
+    labelT->show();
+    //labelT->close();
 }

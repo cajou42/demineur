@@ -5,6 +5,8 @@
 #include <qgridlayout.h>
 #include <QLabel>
 #include <QGroupBox>
+#include <QElapsedTimer>
+#include <QTimer>
 #include <string>
 
 class projet_je_sais_pas : public QWidget
@@ -28,7 +30,12 @@ private:
     void win();
     void chooseAsset(int, int);
     QLabel* labels;
+    QLabel* labelT;
     int tab[12][14];
     std::string casePath = "C:\\Users\\louis\\source\\repos\\projet_je_sais_pas\\images\\case.png";
     bool asmine = false;
+    QLabel* label;
+    QTimer* timer;
+    void integrityTimersEvent(int);
+    int count;
 };
